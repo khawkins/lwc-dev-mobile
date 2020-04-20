@@ -1,0 +1,40 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+
+    "definitions": {
+        "device": {
+            "type": "object",
+            "properties": {
+                "state": { "type": "string" },
+                "isAvailable": { "type": "boolean" },
+                "name": { "type": "string" },
+                "udid": { "type": "string" }
+            },
+            "required": ["state", "isAvailable", "name", "udid"]
+        },
+        "device_list": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/device"
+            }
+        },
+        "sim_runtime": {
+            "type": "object",
+            "patternProperties": {
+                "^com\\.apple\\.CoreSimulator\\.SimRuntime\\..*": {
+                    "$ref": "#/definitions/device_list"
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+
+    "type": "object",
+    "properties": {
+        "devices": {
+            "$ref": "#/definitions/sim_runtime"
+        }
+    },
+    "required": ["devices"],
+    "additionalProperties": false
+}

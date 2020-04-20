@@ -5,6 +5,7 @@
   "author": "Raj Rao @trooper2013",
   "bugs": "https://github.com/forcedotcom/lwc-dev-mobile/issues",
   "dependencies": {
+    "ajv": "^6.12.1",
     "@oclif/command": "^1.5.16",
     "@oclif/config": "^1.13.1",
     "@oclif/errors": "^1",

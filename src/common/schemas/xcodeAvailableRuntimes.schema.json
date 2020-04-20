@@ -1,0 +1,40 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+
+    "definitions": {
+        "runtime": {
+            "type": "object",
+            "properties": {
+                "version": { "type": "string" },
+                "bundlePath": { "type": "string" },
+                "isAvailable": { "type": "boolean" },
+                "name": { "type": "string" },
+                "identifier": { "type": "string" },
+                "buildversion": { "type": "string" }
+            },
+            "required": [
+                "version",
+                "bundlePath",
+                "isAvailable",
+                "name",
+                "identifier",
+                "buildversion"
+            ]
+        },
+        "runtime_list": {
+            "type": "array",
+            "items": {
+                "$ref": "#/definitions/runtime"
+            }
+        }
+    },
+
+    "type": "object",
+    "properties": {
+        "runtimes": {
+            "$ref": "#/definitions/runtime_list"
+        }
+    },
+    "required": ["runtimes"],
+    "additionalProperties": false
+}

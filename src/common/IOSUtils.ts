@@ -8,7 +8,7 @@ import childProcess from 'child_process';
 import cli from 'cli-ux';
 import util from 'util';
 import iOSConfig from '../config/iosconfig.json';
-
+import { SimulatorDevice, SimulatorDeviceList } from './XcodeData';
 const exec = util.promisify(childProcess.exec);
 
 const XCRUN_CMD = '/usr/bin/xcrun';
@@ -90,6 +90,55 @@ export class XcodeUtils {
         command: string
     ): Promise<{ stdout: string; stderr: string }> {
         return exec(command);
+    }
+
+    public static async getAvailableDevices(): Promise<SimulatorDevice[]> {
+        const devicesAvailableCmd = `${XCRUN_CMD} simctl list --json devices available`;
+        try {
+            const { stdout } = await XcodeUtils.executeCommand(
+                devicesAvailableCmd
+            );
+            const devicesObj: any = JSON.parse(stdout);
+            const schemaValidator = new Ajv();
+            const validSchema = schemaValidator.validate(
+                availableDevicesSchema,
+                devicesObj
+            );
+            if (!validSchema) {
+                return new Promise<SimulatorDevice[]>((resolve, reject) => {
+                    // NB: We need a better error message.
+                    const validationError = JSON.stringify(
+                        schemaValidator.errors
+                    );
+                    reject(
+                        `Available devices data is invalid: ${validationError}`
+                    );
+                });
+            }
+
+            const devices: any[] = devicesObj[deviceTypesKey] || [];
+            let matchedDevices: any[] = devices.filter((entry) => {
+                return (
+                    entry[identifier] &&
+                    entry[identifier].match(deviceMatchRegex)
+                );
+            });
+
+            if (matchedDevices) {
+                return new Promise<string[]>((resolve, reject) =>
+                    resolve(
+                        matchedDevices.map(
+                            (entry) => entry.identifier.split('.')[4]
+                        )
+                    )
+                );
+            }
+        } catch (runtimesError) {
+            error = runtimesError;
+        }
+        return new Promise<string[]>((resolve, reject) =>
+            reject(`Could not find any available devices. ${error.message}`)
+        );
     }
 
     public static async getSupportedDevices(): Promise<string[]> {
